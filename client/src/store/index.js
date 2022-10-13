@@ -1,6 +1,7 @@
 import { createContext, useState } from 'react'
 import jsTPS from '../common/jsTPS'
 import api from '../api'
+/* IMPORT ALL TRANSACTIONS */
 export const GlobalStoreContext = createContext({});
 /*
     This is our global data store. Note that it uses the Flux design pattern,
@@ -18,6 +19,7 @@ export const GlobalStoreActionType = {
     LOAD_ID_NAME_PAIRS: "LOAD_ID_NAME_PAIRS",
     SET_CURRENT_LIST: "SET_CURRENT_LIST",
     SET_LIST_NAME_EDIT_ACTIVE: "SET_LIST_NAME_EDIT_ACTIVE",
+    DELETE_SELECTED_LIST: "DELETE_SELECTED_LIST"
 }
 
 // WE'LL NEED THIS TO PROCESS TRANSACTIONS
@@ -31,7 +33,8 @@ export const useGlobalStore = () => {
         idNamePairs: [],
         currentList: null,
         newListCounter: 0,
-        listNameActive: false
+        listNameActive: false,
+        deleteListName: null
     });
 
     // HERE'S THE DATA STORE'S REDUCER, IT MUST
@@ -81,7 +84,9 @@ export const useGlobalStore = () => {
                     idNamePairs: store.idNamePairs,
                     currentList: null,
                     newListCounter: store.newListCounter,
-                    listNameActive: false
+                    listNameActive: false,
+                    listMarkedForDeletion: payload.id,
+                    deleteListName: payload.name
                 });
             }
             // UPDATE A LIST
@@ -100,6 +105,16 @@ export const useGlobalStore = () => {
                     currentList: payload,
                     newListCounter: store.newListCounter,
                     listNameActive: true
+                });
+            }
+            // DEKETE SELECTED LIST
+            case GlobalStoreActionType.DELETE_SELECTED_LIST:{
+                return setStore({
+                    idNamePairs: store.idNamePairs,
+                    currentList: store.currentList,
+                    newListCounter: store.newListCounter-1,
+                    listNameActive: store.listNameActive,
+                    deleteListName: payload.name
                 });
             }
             default:
@@ -168,6 +183,21 @@ export const useGlobalStore = () => {
         }
         asyncLoadIdNamePairs();
     }
+/* <---------------------------------------------------------------------------> */
+    // THESE FUNCTIONS SERVE AS DELETING LIST
+    store.showDeleteListModal = function (idNamePair) {
+        storeReducer({
+            type:GlobalStoreActionType.DELETE_SELECTED_LIST,
+            payload:idNamePair
+        });
+        document.getElementById("delete-list-modal").classList.add("is-visible");
+    }
+
+    store.hideDeleteListModal = function () {
+        document.getElementById("delete-list-modal").classList.remove("is-visible");
+    }
+    
+/* <---------------------------------------------------------------------------> */
 
     store.setCurrentList = function (id) {
         async function asyncSetCurrentList(id) {
