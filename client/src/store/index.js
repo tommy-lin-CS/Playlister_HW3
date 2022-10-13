@@ -107,7 +107,7 @@ export const useGlobalStore = () => {
                     listNameActive: true
                 });
             }
-            // DEKETE SELECTED LIST
+            // DELETE SELECTED LIST
             case GlobalStoreActionType.DELETE_SELECTED_LIST:{
                 return setStore({
                     idNamePairs: store.idNamePairs,
@@ -196,7 +196,44 @@ export const useGlobalStore = () => {
     store.hideDeleteListModal = function () {
         document.getElementById("delete-list-modal").classList.remove("is-visible");
     }
-    
+
+/* <---------------------------------------------------------------------------> */
+    // THIS FUNCTION CREATES A NEW PLAYLIST
+    store.createNewList = function() {
+        async function asynCreateNewList() {
+            const name = "Untitled"
+            const songs = []
+            const payload = { name, songs }
+
+            const response = await api.createPlaylist(payload);
+            if (response.data.success) {
+                let playlist = response.data.playlist;
+                storeReducer({
+                    type: GlobalStoreActionType.CREATE_NEW_LIST,
+                    payload: playlist
+                });
+                
+                // Get playlist pair response from APIBKEND
+                const playlistPairResponse = await api.getPlaylistPairs();
+                if(playlistPairResponse.data.success) {
+                    let pairs = playlistPairResponse.data.idNamePairs;
+                    storeReducer({
+                        type: GlobalStoreActionType.LOAD_ID_NAME_PAIRS,
+                        payload: pairs
+                    });
+                }
+                else {
+                    console.log("API GET failed");
+                }
+            }
+            else {
+                console.log("API POST failed");
+            }
+        }
+        asynCreateNewList();
+        const id = store.idNamePairs[store.idNamePairs.length-1]._id
+        store.setCurrentList(id);
+    }
 /* <---------------------------------------------------------------------------> */
 
     store.setCurrentList = function (id) {

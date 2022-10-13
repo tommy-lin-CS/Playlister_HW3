@@ -39,6 +39,7 @@ createPlaylist = (req, res) => {
             })
         })
 }
+
 getPlaylistById = async (req, res) => {
     await Playlist.findOne({ _id: req.params.id }, (err, list) => {
         if (err) {
@@ -48,6 +49,7 @@ getPlaylistById = async (req, res) => {
         return res.status(200).json({ success: true, playlist: list })
     }).catch(err => console.log(err))
 }
+
 getPlaylists = async (req, res) => {
     await Playlist.find({}, (err, playlists) => {
         if (err) {
@@ -61,6 +63,7 @@ getPlaylists = async (req, res) => {
         return res.status(200).json({ success: true, data: playlists })
     }).catch(err => console.log(err))
 }
+
 getPlaylistPairs = async (req, res) => {
     await Playlist.find({}, (err, playlists) => {
         if (err) {
@@ -87,9 +90,7 @@ getPlaylistPairs = async (req, res) => {
     }).catch(err => console.log(err))
 }
 
-deleteList = async(req,res)=>{
-    let val=req.params.id;
-    console.log("sadasfcsadAFASDASDASD here it goes "+val)
+deletePlaylist = async(req,res)=>{
     await Playlist.findByIdAndRemove({_id:req.params.id},(err, list) => {
         if (err) {
             return res.status(500).json({success:false, error:err})
@@ -97,9 +98,11 @@ deleteList = async(req,res)=>{
         return res.status(200).json({success:true,list:list})
     }).catch(err=>console.log(err))
 }
+
 module.exports = {
     createPlaylist,
     getPlaylists,
     getPlaylistPairs,
-    getPlaylistById
+    getPlaylistById,
+    deletePlaylist
 }
