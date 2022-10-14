@@ -1,4 +1,4 @@
-import { useContext, useEffect } from "react";
+import { useContext } from "react";
 import { GlobalStoreContext } from "../store";
 
 /* This modal is used to confirm that the user deleting a list
@@ -11,8 +11,8 @@ export default function DeleteListModal () {
     let nameOfList = store.deleteListName
 
     function deleteList(event) {
+        store.deletePlaylist();
         document.getElementById("delete-list-modal").classList.remove("is-visible");
-        /* DOES DELETION */
     }
 
     function cancelButton(event) {

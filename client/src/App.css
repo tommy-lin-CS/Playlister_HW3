@@ -48,9 +48,10 @@ body {
 
 #playlister-banner {
   grid-column: 1 / 3;
-  grid-row: 1 / 2;
+  grid-row: 2 / 2;
   background-image: linear-gradient(to bottom,         
   #b8b808, #636723);
+  padding-left: 10px;
   color: white;
   font-size: 48pt;
   border-color: black;
@@ -60,29 +61,32 @@ body {
 }
 
 #edit-toolbar {
-  grid-column: 2 / 3;
-  grid-row: 1 / 2;
+  display: flex;
+  flex-direction: center;
   background-color: transparent;
   float:right;
   padding: 5px;
+  padding-top: 10px;
 }
 
 #playlist-selector, #playlist-cards {
+  display:grid;
   overflow: scroll;
+  flex-direction: column;
   grid-column: 1 / 3;
   grid-row: 2 / 3;
-  display:grid;
+  flex-direction: row;
   background-color: var(--swatch-primary);
+  
 }
 
 .playlister-button, .playlister-button-disabled {
   font-size:36pt;
-  border-width: 0px;
+  border-width: 1px;
   float:left;
   color: black;
   cursor: pointer;
   opacity: 100%;
-  border-color: black;
 }
 
 .playlister-button:hover {
@@ -143,11 +147,11 @@ body {
 
 .list-card-button {
   float:right;
-  font-size:18pt;
+  font-size: 18pt;
 }
 
 input {
-  font-size:20pt;
+  font-size: 20pt;
 }
 
 .disabled {
