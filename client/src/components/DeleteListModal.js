@@ -12,6 +12,7 @@ export default function DeleteListModal () {
 
     function deleteList(event) {
         store.deletePlaylist();
+        document.getElementById("delete-list-modal").classList.remove("is-visible");
     }
 
     function cancelButton(event) {

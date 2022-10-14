@@ -95,20 +95,24 @@ deletePlaylist = async(req,res)=>{
         if (err) {
             return res.status(500).json({success:false, error:err})
         }
-        return res.status(200).json({success:true,list:list})
+        return res.status(200).json({success:true, playlist:list})
     }).catch(err => console.log(err))
 }
 
 addNewSong = async (req,res) => {
     const body = req.body;
-    console.log("addNewSong body: " + body);
+    let newSong = {
+        title: body.title,
+        artist: body.artist,
+        youtubeId: body.youtubeId
+    }
     Playlist.findOne({ _id: body.id }, (error, songList) => {
         if (error) {
             return res.status(400).json({ success: false, error: err })
         }
         else {
+            songList.songs.push(newSong)
             songList
-                .songs.splice(body.index, 0, body.song)
                 .save()
                 .then(() => {
                     return res.status(201).json ({
@@ -134,6 +138,6 @@ module.exports = {
     getPlaylistPairs,
     getPlaylistById,
     deletePlaylist,
-    updatePlaylistById,
+    // updatePlaylistById,
     addNewSong
 }

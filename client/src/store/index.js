@@ -209,11 +209,13 @@ export const useGlobalStore = () => {
         async function asyncDeletePlaylist() {
             const response = await api.deletePlaylist(store.deleteListId);
             console.log(store.deleteListId);
+            await console.log(store);
+            await console.log(store.deleteListId);
             if (response.data.success) {
                 store.loadIdNamePairs();
                 storeReducer({
                     type: GlobalStoreActionType.DELETE_SELECTED_LIST,
-                    payload: null
+                    payload: store.deleteListId
                 });
             }
             else {
@@ -271,14 +273,13 @@ export const useGlobalStore = () => {
         async function asyncAddNewSongToList() {
             let id = store.currentList._id;
             let newSong = {
-                "title": "Untitled",
-                "artist": "Unknown",
-                "youtubeId": "dQw4w9WgXcQ"
+                id : store.currentList._id,
+                title: "Untitled",
+                artist: "Unknown",
+                youtubeId: "dQw4w9WgXcQ"
             }
-
             store.currentList.songs.push(newSong);
-
-            let response = await api.addNewSong(id, store.currentList);
+            let response = await api.addNewSong(newSong);
             if(response.data.success) {
                 storeReducer({
                     type: GlobalStoreActionType.SET_CURRENT_LIST,
@@ -292,7 +293,6 @@ export const useGlobalStore = () => {
 
 
 /* <---------------------------------------------------------------------------> */
-
     store.setCurrentList = function (id) {
         async function asyncSetCurrentList(id) {
             let response = await api.getPlaylistById(id);
