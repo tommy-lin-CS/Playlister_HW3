@@ -264,11 +264,14 @@ export const useGlobalStore = () => {
     }
 /* <---------------------------------------------------------------------------> */
     // THESE FUNCTIONS ADD A NEW SONG TO THE PLAYLIST WITH TPS
+    
+    // TPS
     store.addNewSongTransaction = function() {
         let transaction = new AddSong_Transaction(store);
         tps.addTransaction(transaction);
     }
 
+    // ADDS NEW SONG TO THE PLAYLIST
     store.addNewSongToList = function() {
         async function asyncAddNewSongToList() {
             let id = store.currentList._id;
@@ -290,9 +293,26 @@ export const useGlobalStore = () => {
         }
         asyncAddNewSongToList();
     }
-
-
 /* <---------------------------------------------------------------------------> */
+    // THESE FUNCTIONS DELETE SONGS FROM THE PLAYLIST
+    store.deleteLastSong = function() {
+        async function asyncDeleteLastSong() {
+            let id = store.currentList._id;
+            store.currentList.songs.pop()
+            let response = await api.deleteLastSong(id, store.currentList);
+            if (response.data.success) {
+                storeReducer({
+                    type: GlobalStoreActionType.SET_CURRENT_LIST,
+                    payload: store.currentList
+                });
+                store.history.push("/playlist/" + id);
+            }
+
+        }
+        asyncDeleteLastSong();
+    }
+/* <---------------------------------------------------------------------------> */
+
     store.setCurrentList = function (id) {
         async function asyncSetCurrentList(id) {
             let response = await api.getPlaylistById(id);

@@ -115,7 +115,7 @@ addNewSong = async (req,res) => {
             songList
                 .save()
                 .then(() => {
-                    return res.status(201).json ({
+                    return res.status(200).json ({
                         success: true,
                         songList: songList,
                         message: 'New Song Added!'
@@ -131,7 +131,33 @@ addNewSong = async (req,res) => {
     })
 }
 
-
+deleteLastSong = async (req, res) => {
+    const body = req.body
+    await Playlist.findOne({ _id: req.params.id }, (error, songList) => {
+        if (error) {
+            return res.status(400).json({ success: false, error: err })
+        }
+        else {
+            songList.name = body.name
+            songList.songs = body.songs
+            songList
+                .save()
+                .then(() => {
+                    return res.status(200).json ({
+                        success: true,
+                        songList: songList,
+                        message: 'Last Song Deleted!'
+                    })
+                })
+                .catch(error => {
+                    return res.status(400).json({
+                        error,
+                        message: 'Last Song Not Deleted!'
+                    })
+                })
+        }
+    })
+}
 module.exports = {
     createPlaylist,
     getPlaylists,
@@ -139,5 +165,6 @@ module.exports = {
     getPlaylistById,
     deletePlaylist,
     // updatePlaylistById,
-    addNewSong
+    addNewSong,
+    deleteLastSong
 }
