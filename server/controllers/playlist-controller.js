@@ -134,6 +134,6 @@ module.exports = {
     getPlaylistPairs,
     getPlaylistById,
     deletePlaylist,
-    // updatePlaylistById
+    updatePlaylistById,
     addNewSong
 }
