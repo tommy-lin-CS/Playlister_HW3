@@ -3,7 +3,9 @@ import jsTPS from '../common/jsTPS'
 import api from '../api'
 import AddSong_Transaction from '../transactions/AddSong_Transaction';
 import EditSong_Transaction from '../transactions/EditSong_Transaction';
-/* IMPORT ALL TRANSACTIONS */
+import DeleteSong_Transaction from '../transactions/DeleteSong_Transaction';
+// import MoveSong_Transaction from '../transactions/MoveSong_Transaction';
+
 export const GlobalStoreContext = createContext({});
 /*
     This is our global data store. Note that it uses the Flux design pattern,
@@ -22,7 +24,8 @@ export const GlobalStoreActionType = {
     SET_CURRENT_LIST: "SET_CURRENT_LIST",
     SET_LIST_NAME_EDIT_ACTIVE: "SET_LIST_NAME_EDIT_ACTIVE",
     DELETE_SELECTED_LIST: "DELETE_SELECTED_LIST",
-    EDIT_SONG_CONTENT: "EDIT_SONG_CONTENT"
+    EDIT_SONG_CONTENT: "EDIT_SONG_CONTENT",
+    DELETE_SELECTED_SONG: "DELETE_SELECTED_SONG"
 }
 
 // WE'LL NEED THIS TO PROCESS TRANSACTIONS
@@ -39,7 +42,8 @@ export const useGlobalStore = () => {
         listNameActive: false,
         deleteListId: null,
         deleteListName: null,
-        songIndex: null
+        songIndex: null,
+        deleteSongIndex: null,
     });
 
     // HERE'S THE DATA STORE'S REDUCER, IT MUST
@@ -114,7 +118,7 @@ export const useGlobalStore = () => {
                 });
             }
             // DELETE SELECTED LIST
-            case GlobalStoreActionType.DELETE_SELECTED_LIST:{
+            case GlobalStoreActionType.DELETE_SELECTED_LIST: {
                 return setStore({
                     idNamePairs: store.idNamePairs,
                     currentList: store.currentList,
@@ -125,13 +129,23 @@ export const useGlobalStore = () => {
                 });
             }
             // EDIT SONG CONTENT
-            case GlobalStoreActionType.EDIT_SONG_CONTENT:{
+            case GlobalStoreActionType.EDIT_SONG_CONTENT: {
                 return setStore({
                     idNamePairs: store.idNamePairs,
                     currentList: store.currentList,
                     newListCounter: store.newListCounter,
                     listNameActive: store.listNameActive,
                     songIndex: payload
+                });
+            }
+            // DELETE SONG
+            case GlobalStoreActionType.DELETE_SELECTED_SONG: {
+                return setStore({
+                    idNamePairs: store.idNamePairs,
+                    currentList: store.currentList,
+                    newListCounter: store.newListCounter,
+                    listNameActive: store.listNameActive,
+                    deleteSongIndex: payload
                 });
             }
             default:
@@ -181,7 +195,7 @@ export const useGlobalStore = () => {
             type: GlobalStoreActionType.CLOSE_CURRENT_LIST,
             payload: {}
         });
-        tps.clearAllTransactions();
+        // tps.clearAllTransactions();
     }
 
     // THIS FUNCTION LOADS ALL THE ID, NAME PAIRS SO WE CAN LIST ALL THE LISTS
@@ -363,7 +377,6 @@ export const useGlobalStore = () => {
                 artist,
                 ytid
             }
-            console.log(song);
             const response = await api.editSongContent(song);
             if (response.data.success) {
                 storeReducer({
@@ -378,7 +391,52 @@ export const useGlobalStore = () => {
         asyncAddSongGivenAllComponentsOnIndex();
     }
 /* <---------------------------------------------------------------------------> */
+    // THESE FUNCTIONS SERVE TO DELETE A SONG IN A PLAYLIST
 
+    // SHOWS DELETE SONG MODAL
+    store.showDeleteSongModal = function(id) {
+        storeReducer({
+            type: GlobalStoreActionType.DELETE_SELECTED_SONG,
+            payload: id
+        })
+        document.getElementById("delete-song-modal").classList.add("is-visible");
+    }
+
+    // TPS
+    store.deleteSongTransaction = function() {
+        let title = store.currentList.songs[store.deleteSongIndex].title;
+        let artist = store.currentList.songs[store.deleteSongIndex].artist;
+        let ytid = store.currentList.songs[store.deleteSongIndex].youTubeId;
+        let transaction = new DeleteSong_Transaction(store, store.deleteSongIndex, title, artist, ytid);
+        tps.addTransaction(transaction);
+    }
+    
+    // PERFORMS DELETE SONG
+    store.deleteSong = function(songIndex) {
+        console.log(songIndex);
+        console.log(store.currentList.songs[songIndex]._id);
+
+        async function asyncDeleteSong() {
+            let song = {
+                id: store.currentList._id, 
+                index: songIndex};
+            let response = await api.deleteSong(song);
+            if (response.data.success) {
+                storeReducer({
+                    type: GlobalStoreActionType.SET_CURRENT_LIST,
+                    payload: response.data.list
+                });
+                // store.history.push("/playlist/" + song.id);
+            }
+            else {
+                console.log("Cannot Delete Song!");
+            }
+
+        }
+        asyncDeleteSong(); 
+    }
+
+/* <---------------------------------------------------------------------------> */
 
 
 

@@ -11,6 +11,10 @@ function SongCard(props) {
         store.showEditSongModal(id);
     }
 
+    const handleDeleteSong = (event) => {
+        const id = event.target.id.split("-")[2];
+        store.showDeleteSongModal(id)
+    }
  
 
 
@@ -32,6 +36,7 @@ function SongCard(props) {
                 type="button"
                 id={"remove-song-" + index}
                 className="list-card-button"
+                onClick={handleDeleteSong}
                 value={"\u2715"}
             />
         </div>

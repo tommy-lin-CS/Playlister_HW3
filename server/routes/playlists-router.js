@@ -17,5 +17,6 @@ router.put('/playlistUpdate/:id', PlaylistController.updatePlaylistById)
 router.post('/playlistSongs', PlaylistController.addNewSong)
 router.put('/playlistSongDelete/:id', PlaylistController.deleteLastSong)
 router.put('/playlistSongEdit', PlaylistController.editSongContent)
+router.put('/playlistDeleteSong', PlaylistController.deleteSong);
 
 module.exports = router

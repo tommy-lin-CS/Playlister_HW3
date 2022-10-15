@@ -169,7 +169,7 @@ addNewSong = async (req,res) => {
 }
 
 deleteLastSong = async (req, res) => {
-    const body = req.body
+    const body = req.body;
     await Playlist.findOne({ _id: req.params.id }, (error, songList) => {
         if (error) {
             return res.status(400).json({ success: false, error: err })
@@ -197,7 +197,7 @@ deleteLastSong = async (req, res) => {
 }
 
 editSongContent = async (req, res) => {
-    const body = req.body
+    const body = req.body;
     await Playlist.findOne({ _id: body.id }, (error, songList) => {
         if (error) {
             return res.status(400).json({ success: false, error: err })
@@ -206,6 +206,33 @@ editSongContent = async (req, res) => {
             songList.songs[body.index].title = body.title;
             songList.songs[body.index].artist = body.artist;
             songList.songs[body.index].youTubeId = body.ytid;
+            songList
+                .save()
+                .then(() => {
+                    return res.status(200).json ({
+                        success: true,
+                        songList: songList,
+                        message: 'Edit Song Been Saved!'
+                    })
+                })
+                .catch(error => {
+                    return res.status(400).json({
+                        error,
+                        message: 'Edit Song NOT Saved!'
+                    })
+                })
+        }
+    })
+}
+
+deleteSong = async (req, res) => {
+    const body = req.body;
+    await Playlist.findOne({ _id: body.id }, (error, songList) => {
+        if (error) {
+            return res.status(400).json({ success: false, error: err })
+        }
+        else {
+            songList.songs.splice(body.index, 1);
             songList
                 .save()
                 .then(() => {
@@ -234,5 +261,6 @@ module.exports = {
     updatePlaylistById,
     addNewSong,
     deleteLastSong,
-    editSongContent
+    editSongContent,
+    deleteSong
 }
