@@ -90,13 +90,50 @@ getPlaylistPairs = async (req, res) => {
     }).catch(err => console.log(err))
 }
 
-deletePlaylist = async(req,res)=>{
-    await Playlist.findByIdAndRemove({_id: req.params.id},(err, list) => {
+updatePlaylistById = async (req, res) => {
+    const body = req.body;
+    await Playlist.findOne({ _id: req.params.id }, (err, list) => {
         if (err) {
-            return res.status(500).json({success:false, error:err})
+            return res.status(400).json({ success: false, error: err })
         }
-        return res.status(200).json({success:true, playlist:list})
+        else {
+            list.name = body.name
+            list.songs = body.songs
+            list
+                .save()
+                .then(() => {
+                    return res.status(200).json ({
+                        success: true,
+                        songList: songList,
+                        message: 'Updated Playlist!'
+                    })
+                })
+                .catch(err => {
+                    return res.status(404).json ({
+                        err,
+                        success: false,
+                        message: 'Playlist Could Not Be Updated!'
+                    })
+                })
+        }
+
+        return res.status(200).json({ success: true, playlist: list })
     }).catch(err => console.log(err))
+}
+
+deletePlaylist = async (req, res) => {
+    await Playlist.findByIdAndRemove({ _id: req.params.id },(error, list) => {
+        if (error) {
+            return res.status(500).json({
+                success:false, 
+                error: error
+            })
+        }
+        return res.status(200).json({
+            success:true, 
+            playlist: list
+        })
+    }).catch(error => console.log(error))
 }
 
 addNewSong = async (req,res) => {
@@ -104,7 +141,7 @@ addNewSong = async (req,res) => {
     let newSong = {
         title: body.title,
         artist: body.artist,
-        youtubeId: body.youtubeId
+        youTubeId: body.youtubeId
     }
     Playlist.findOne({ _id: body.id }, (error, songList) => {
         if (error) {
@@ -158,13 +195,44 @@ deleteLastSong = async (req, res) => {
         }
     })
 }
+
+editSongContent = async (req, res) => {
+    const body = req.body
+    await Playlist.findOne({ _id: body.id }, (error, songList) => {
+        if (error) {
+            return res.status(400).json({ success: false, error: err })
+        }
+        else {
+            songList.songs[body.index].title = body.title;
+            songList.songs[body.index].artist = body.artist;
+            songList.songs[body.index].youTubeId = body.ytid;
+            songList
+                .save()
+                .then(() => {
+                    return res.status(200).json ({
+                        success: true,
+                        songList: songList,
+                        message: 'Edit Song Been Saved!'
+                    })
+                })
+                .catch(error => {
+                    return res.status(400).json({
+                        error,
+                        message: 'Edit Song NOT Saved!'
+                    })
+                })
+        }
+    })
+}
+
 module.exports = {
     createPlaylist,
     getPlaylists,
     getPlaylistPairs,
     getPlaylistById,
     deletePlaylist,
-    // updatePlaylistById,
+    updatePlaylistById,
     addNewSong,
-    deleteLastSong
+    deleteLastSong,
+    editSongContent
 }

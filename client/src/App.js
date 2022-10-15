@@ -3,6 +3,7 @@ import { React } from 'react'
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom'
 import { Banner, ListSelector, PlaylistCards, Statusbar } from './components'
 import DeleteListModal from './components/DeleteListModal';
+import EditSongModal from './components/EditSongModal';
 /* IMPORT MODALS */
 
 
@@ -20,6 +21,7 @@ const App = () => {
                 <Route path="/playlist/:id" exact component={PlaylistCards} />
             </Switch>
             <DeleteListModal />
+            <EditSongModal />
             <Statusbar />
         </Router>
     )

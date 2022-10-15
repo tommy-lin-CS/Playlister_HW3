@@ -3,14 +3,23 @@ import { GlobalStoreContext } from '../store'
 
 function SongCard(props) {
     const { store } = useContext(GlobalStoreContext);
-
     const { song, index } = props;
     let cardClass = "list-card unselected-list-card";
+
+    const handleEditSongModal = (event) => {
+        const id = event.target.id.split("-")[1];
+        store.showEditSongModal(id);
+    }
+
+ 
+
+
     return (
         <div
             key={index}
             id={'song-' + index + '-card'}
             className={cardClass}
+            onDoubleClick={handleEditSongModal}
         >
             {index + 1}.
             <a
