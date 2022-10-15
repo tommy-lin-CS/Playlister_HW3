@@ -304,7 +304,8 @@ export const useGlobalStore = () => {
                 id : store.currentList._id,
                 title: "Untitled",
                 artist: "Unknown",
-                youTubeId: "dQw4w9WgXcQ"
+                youTubeId: "dQw4w9WgXcQ",
+                index: store.currentList.songs.length
             }
             store.currentList.songs.push(newSong);
             let response = await api.addNewSong(newSong);
@@ -377,7 +378,7 @@ export const useGlobalStore = () => {
                 artist,
                 ytid
             }
-            const response = await api.editSongContent(song);
+            const response = await api.addNewSong(song);
             if (response.data.success) {
                 storeReducer({
                     type: GlobalStoreActionType.SET_CURRENT_LIST,
@@ -426,7 +427,7 @@ export const useGlobalStore = () => {
                     type: GlobalStoreActionType.SET_CURRENT_LIST,
                     payload: response.data.list
                 });
-                // store.history.push("/playlist/" + song.id);
+                store.history.push("/playlist/" + song.id);
             }
             else {
                 console.log("Cannot Delete Song!");

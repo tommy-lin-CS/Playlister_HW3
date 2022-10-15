@@ -141,14 +141,18 @@ addNewSong = async (req,res) => {
     let newSong = {
         title: body.title,
         artist: body.artist,
-        youTubeId: body.youtubeId
+        youTubeId: body.youtubeId,
     }
+    console.log(body.index);
+    console.log(body.title);
+    console.log(body.artist);
+    console.log(body.ytid);
     Playlist.findOne({ _id: body.id }, (error, songList) => {
         if (error) {
             return res.status(400).json({ success: false, error: err })
         }
         else {
-            songList.songs.push(newSong)
+            songList.songs.splice(body.index, 0, newSong);
             songList
                 .save()
                 .then(() => {
