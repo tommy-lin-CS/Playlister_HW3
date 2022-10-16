@@ -41,6 +41,8 @@ createPlaylist = (req, res) => {
 }
 
 getPlaylistById = async (req, res) => {
+    console.log("APPLE3");
+
     await Playlist.findOne({ _id: req.params.id }, (err, list) => {
         if (err) {
             return res.status(400).json({ success: false, error: err })
@@ -51,6 +53,7 @@ getPlaylistById = async (req, res) => {
 }
 
 getPlaylists = async (req, res) => {
+    console.log("APPLE2");
     await Playlist.find({}, (err, playlists) => {
         if (err) {
             return res.status(400).json({ success: false, error: err })
@@ -65,6 +68,8 @@ getPlaylists = async (req, res) => {
 }
 
 getPlaylistPairs = async (req, res) => {
+    console.log("APPLE1");
+
     await Playlist.find({}, (err, playlists) => {
         if (err) {
             return res.status(400).json({ success: false, error: err})
@@ -96,28 +101,29 @@ updatePlaylistById = async (req, res) => {
         if (err) {
             return res.status(400).json({ success: false, error: err })
         }
+        
         else {
             list.name = body.name
             list.songs = body.songs
             list
                 .save()
                 .then(() => {
-                    return res.status(200).json ({
+                    return res.status(201).json ({
                         success: true,
-                        songList: songList,
+                        list: list,
                         message: 'Updated Playlist!'
                     })
                 })
                 .catch(err => {
-                    return res.status(404).json ({
+                    return res.status(400).json ({
                         err,
                         success: false,
                         message: 'Playlist Could Not Be Updated!'
-                    })
+                    }) 
                 })
         }
 
-        return res.status(200).json({ success: true, playlist: list })
+        // return res.status(200).json({ success: true, playlist: list })
     }).catch(err => console.log(err))
 }
 
@@ -141,12 +147,12 @@ addNewSong = async (req,res) => {
     let newSong = {
         title: body.title,
         artist: body.artist,
-        youTubeId: body.youtubeId,
+        youTubeId: body.youTubeId,
     }
     console.log(body.index);
     console.log(body.title);
     console.log(body.artist);
-    console.log(body.ytid);
+    console.log(body.youTubeId);
     Playlist.findOne({ _id: body.id }, (error, songList) => {
         if (error) {
             return res.status(400).json({ success: false, error: err })

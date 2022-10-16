@@ -25,7 +25,7 @@ export default function EditSongModal () {
     return (
         <div className="modal" id="edit-song-modal" data-animation="slideInOutLeft">
             <div className="modal-root" id="edit-song-content">
-                <div className="modal-song-north">
+                <div className="modal-north">
                     Edit song
                 </div>
                 <div className="modal-center">
@@ -44,7 +44,7 @@ export default function EditSongModal () {
                         </div>
                     </div>
                 </div>
-                <div className="modal-song-south">
+                <div className="modal-south">
                     <input type="button" 
                         id="edit-song-confirm-button" 
                         onClick={editSongConfirm}

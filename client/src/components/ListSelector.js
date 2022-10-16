@@ -12,7 +12,7 @@ const ListSelector = () => {
     store.history = useHistory();
 
     useEffect(() => {
-        store.loadIdNamePairs();
+        store.loadIdNamePairs()
     }, []);
 
     function handleCreateNewList() {

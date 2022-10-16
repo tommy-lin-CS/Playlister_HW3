@@ -164,6 +164,8 @@ export const useGlobalStore = () => {
             if (response.data.success) {
                 let playlist = response.data.playlist;
                 playlist.name = newName;
+                console.log(playlist._id);
+                console.log(playlist);
                 async function updateList(playlist) {
                     response = await api.updatePlaylistById(playlist._id, playlist);
                     if (response.data.success) {
@@ -204,10 +206,13 @@ export const useGlobalStore = () => {
             const response = await api.getPlaylistPairs();
             if (response.data.success) {
                 let pairsArray = response.data.idNamePairs;
-                storeReducer({
-                    type: GlobalStoreActionType.LOAD_ID_NAME_PAIRS,
-                    payload: pairsArray
-                });
+                if (pairsArray) {
+                    storeReducer({
+                        type: GlobalStoreActionType.LOAD_ID_NAME_PAIRS,
+                        payload: pairsArray
+                    });
+                }
+                
             }
             else {
                 console.log("API FAILED TO GET THE LIST PAIRS");
@@ -215,6 +220,8 @@ export const useGlobalStore = () => {
         }
         asyncLoadIdNamePairs();
     }
+
+
 /* <---------------------------------------------------------------------------> */
     // THESE FUNCTIONS SERVE AS DELETING LIST
 
@@ -260,6 +267,7 @@ export const useGlobalStore = () => {
 
             const response = await api.createPlaylist(payload);
             if (response.data.success) {
+                console.log(response);
                 let playlist = response.data.playlist;
                 storeReducer({
                     type: GlobalStoreActionType.CREATE_NEW_LIST,
@@ -316,6 +324,7 @@ export const useGlobalStore = () => {
                 });
                 store.history.push("/playlist/" + id)
             }
+
         }
         asyncAddNewSongToList();
     }
@@ -369,17 +378,19 @@ export const useGlobalStore = () => {
         tps.addTransaction(transaction);
     }
 
-    store.addSongGivenAllComponentsOnIndex = function(index, title, artist, ytid) {
+    store.addSongGivenAllComponentsOnIndex = function(index, title, artist, youTubeId) {
         async function asyncAddSongGivenAllComponentsOnIndex() {
             let song = {
                 id: store.currentList._id,
                 index,
                 title,
                 artist,
-                ytid
+                youTubeId
             }
+            console.log(song.ytid);
             const response = await api.addNewSong(song);
             if (response.data.success) {
+                store.setCurrentList(store.currentList._id);
                 storeReducer({
                     type: GlobalStoreActionType.SET_CURRENT_LIST,
                     payload: response.data.list
@@ -390,6 +401,30 @@ export const useGlobalStore = () => {
             }
         }
         asyncAddSongGivenAllComponentsOnIndex();
+    }
+
+
+    store.editSongContent = function(index, title, artist, ytid) {
+        async function asyncEditSongContent() {
+            let song = {
+                id: store.currentList._id,
+                index,
+                title,
+                artist,
+                ytid
+            }
+            const response = await api.editSongContent(song);
+            if (response.data.success) {
+                storeReducer({
+                    type: GlobalStoreActionType.SET_CURRENT_LIST,
+                    payload: response.data.list
+                });
+            }
+            else {
+                console.log("Cannot Edit Song Content!");
+            }
+        }
+        asyncEditSongContent();
     }
 /* <---------------------------------------------------------------------------> */
     // THESE FUNCTIONS SERVE TO DELETE A SONG IN A PLAYLIST
@@ -414,28 +449,30 @@ export const useGlobalStore = () => {
     
     // PERFORMS DELETE SONG
     store.deleteSong = function(songIndex) {
-        console.log(songIndex);
-        console.log(store.currentList.songs[songIndex]._id);
-
         async function asyncDeleteSong() {
             let song = {
                 id: store.currentList._id, 
                 index: songIndex};
             let response = await api.deleteSong(song);
+            console.log(response);
             if (response.data.success) {
-                storeReducer({
-                    type: GlobalStoreActionType.SET_CURRENT_LIST,
-                    payload: response.data.list
-                });
-                store.history.push("/playlist/" + song.id);
+                store.setCurrentList(store.currentList._id);
+                // store.currentList.songs = response.data.songList.songs;
+                // storeReducer({
+                //     type: GlobalStoreActionType.SET_CURRENT_LIST,
+                //     payload: store.currentList
+                // });
+                
+                // store.history.push("/playlist/" + song.id);
             }
             else {
                 console.log("Cannot Delete Song!");
             }
-
+            console.log(store.currentList)
         }
+        
         asyncDeleteSong(); 
-    }
+    }   
 
 /* <---------------------------------------------------------------------------> */
 
