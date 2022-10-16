@@ -144,10 +144,6 @@ addNewSong = async (req,res) => {
         artist: body.artist,
         youTubeId: body.youTubeId,
     }
-    console.log(body.index);
-    console.log(body.title);
-    console.log(body.artist);
-    console.log(body.youTubeId);
     Playlist.findOne({ _id: body.id }, (error, songList) => {
         if (error) {
             return res.status(400).json({ success: false, error: err })
@@ -259,7 +255,6 @@ deleteSong = async (req, res) => {
 
 moveSongs = async (req, res) => {
     const body = req.body;
-    console.log(body);
     await Playlist.findOne({ _id: body.id }, (error, songList) => {
         if (error) {
             return res.status(400).json({ success: false, error: err })

@@ -398,7 +398,8 @@ export const useGlobalStore = () => {
         let oldArtist = oldSong.artist;
         let oldYtid = oldSong.youTubeId;
 
-        let transaction = new EditSong_Transaction(store, store.songIndex, oldTitle, oldArtist, oldYtid,
+        let transaction = new EditSong_Transaction(store, store.songIndex, 
+                                                    oldTitle, oldArtist, oldYtid,
                                                     newTitle, newArtist, newYtid);
         tps.addTransaction(transaction);
     }
