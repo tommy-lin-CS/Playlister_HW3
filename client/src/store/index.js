@@ -4,7 +4,7 @@ import api from '../api'
 import AddSong_Transaction from '../transactions/AddSong_Transaction';
 import EditSong_Transaction from '../transactions/EditSong_Transaction';
 import DeleteSong_Transaction from '../transactions/DeleteSong_Transaction';
-// import MoveSong_Transaction from '../transactions/MoveSong_Transaction';
+import MoveSong_Transaction from '../transactions/MoveSong_Transaction';
 
 export const GlobalStoreContext = createContext({});
 /*
@@ -197,7 +197,7 @@ export const useGlobalStore = () => {
             type: GlobalStoreActionType.CLOSE_CURRENT_LIST,
             payload: {}
         });
-        // tps.clearAllTransactions();
+        tps.clearAllTransactions();
     }
 
     // THIS FUNCTION LOADS ALL THE ID, NAME PAIRS SO WE CAN LIST ALL THE LISTS
@@ -277,6 +277,10 @@ export const useGlobalStore = () => {
                 // Get playlist pair response from APIBKEND
                 const playlistPairResponse = await api.getPlaylistPairs();
                 if(playlistPairResponse.data.success) {
+                    console.log(playlistPairResponse);
+                    const index = playlistPairResponse.data.idNamePairs.length - 1;
+                    const newPlaylist = playlistPairResponse.data.idNamePairs[index];
+                    store.setCurrentList(newPlaylist._id);
                     let pairs = playlistPairResponse.data.idNamePairs;
                     storeReducer({
                         type: GlobalStoreActionType.LOAD_ID_NAME_PAIRS,
@@ -292,8 +296,8 @@ export const useGlobalStore = () => {
             }
         }
         asynCreateNewList();
-        const id = store.idNamePairs[store.idNamePairs.length - 1]._id
-        store.setCurrentList(id);
+        // const id = store.idNamePairs[store.idNamePairs.length - 1]._id
+        // store.setCurrentList(id);
     }
 /* <---------------------------------------------------------------------------> */
     // THESE FUNCTIONS ADD A NEW SONG TO THE PLAYLIST WITH TPS
@@ -315,9 +319,9 @@ export const useGlobalStore = () => {
                 youTubeId: "dQw4w9WgXcQ",
                 index: store.currentList.songs.length
             }
-            store.currentList.songs.push(newSong);
             let response = await api.addNewSong(newSong);
             if(response.data.success) {
+                store.setCurrentList(store.currentList._id);
                 storeReducer({
                     type: GlobalStoreActionType.SET_CURRENT_LIST,
                     payload: store.currentList
@@ -335,9 +339,9 @@ export const useGlobalStore = () => {
     store.deleteLastSong = function() {
         async function asyncDeleteLastSong() {
             let id = store.currentList._id;
-            store.currentList.songs.pop()
             let response = await api.deleteLastSong(id, store.currentList);
             if (response.data.success) {
+                store.setCurrentList(store.currentList._id);
                 storeReducer({
                     type: GlobalStoreActionType.SET_CURRENT_LIST,
                     payload: store.currentList
@@ -415,6 +419,7 @@ export const useGlobalStore = () => {
             }
             const response = await api.editSongContent(song);
             if (response.data.success) {
+                store.setCurrentList(store.currentList._id);
                 storeReducer({
                     type: GlobalStoreActionType.SET_CURRENT_LIST,
                     payload: response.data.list
@@ -457,33 +462,58 @@ export const useGlobalStore = () => {
             console.log(response);
             if (response.data.success) {
                 store.setCurrentList(store.currentList._id);
-                // store.currentList.songs = response.data.songList.songs;
-                // storeReducer({
-                //     type: GlobalStoreActionType.SET_CURRENT_LIST,
-                //     payload: store.currentList
-                // });
+                storeReducer({
+                    type: GlobalStoreActionType.SET_CURRENT_LIST,
+                    payload: store.currentList
+                });
                 
-                // store.history.push("/playlist/" + song.id);
+                store.history.push("/playlist/" + song.id);
             }
             else {
                 console.log("Cannot Delete Song!");
             }
-            console.log(store.currentList)
         }
         
         asyncDeleteSong(); 
     }   
 
 /* <---------------------------------------------------------------------------> */
+    // THESE FUNCTIONS SERVE TO MOVE TWO SONGS IN A PLAYLIST
 
+    // TPS
+    store.moveSongTransaction = function(oldSongIndex, newSongIndex) {
+        let transaction = new MoveSong_Transaction(store, oldSongIndex, newSongIndex);
+        tps.addTransaction(transaction);
+    }
 
+    // MOVES TWO SONG IN A PLAYLIST BKEND
+    store.moveSong = function(start, end){
+        async function asyncMoveSong(){
+            let twoSongs = { id:store.currentList._id, start: start, end: end };
+            const response = await api.moveSongs(twoSongs);
+            if (response.data.success) {
+                store.setCurrentList(store.currentList._id);
+                storeReducer({
+                    type: GlobalStoreActionType.SET_CURRENT_LIST,
+                    payload: store.currentList
+                });
+            }
 
+            else{
+                console.log("List is not moved");
+            }
+        }
+        asyncMoveSong();
+    } 
+
+/* <---------------------------------------------------------------------------> */
+
+    // THIS FUNCTION SETS THE CURRENT LIST TO THE VIEW
     store.setCurrentList = function (id) {
         async function asyncSetCurrentList(id) {
             let response = await api.getPlaylistById(id);
             if (response.data.success) {
                 let playlist = response.data.playlist;
-
                 if (response.data.success) {
                     storeReducer({
                         type: GlobalStoreActionType.SET_CURRENT_LIST,

@@ -41,8 +41,6 @@ createPlaylist = (req, res) => {
 }
 
 getPlaylistById = async (req, res) => {
-    console.log("APPLE3");
-
     await Playlist.findOne({ _id: req.params.id }, (err, list) => {
         if (err) {
             return res.status(400).json({ success: false, error: err })
@@ -53,7 +51,6 @@ getPlaylistById = async (req, res) => {
 }
 
 getPlaylists = async (req, res) => {
-    console.log("APPLE2");
     await Playlist.find({}, (err, playlists) => {
         if (err) {
             return res.status(400).json({ success: false, error: err })
@@ -68,8 +65,6 @@ getPlaylists = async (req, res) => {
 }
 
 getPlaylistPairs = async (req, res) => {
-    console.log("APPLE1");
-
     await Playlist.find({}, (err, playlists) => {
         if (err) {
             return res.status(400).json({ success: false, error: err})
@@ -262,6 +257,37 @@ deleteSong = async (req, res) => {
     })
 }
 
+moveSongs = async (req, res) => {
+    const body = req.body;
+    console.log(body);
+    await Playlist.findOne({ _id: body.id }, (error, songList) => {
+        if (error) {
+            return res.status(400).json({ success: false, error: err })
+        }
+        else {
+            let oldSong = songList.songs[body.start]; 
+            let newSong = songList.songs[body.end];
+            songList.songs.splice(body.start, 1, newSong); // MOVEMENT A
+            songList.songs.splice(body.end, 1, oldSong) // MOVEMENT B
+            songList
+                .save()
+                .then(() => {
+                    return res.status(200).json ({
+                        success: true,
+                        songList: songList,
+                        message: 'Song Has Been Moved!'
+                    })
+                })
+                .catch(error => {
+                    return res.status(400).json({
+                        error,
+                        message: 'Song Has NOT Been Moved!'
+                    })
+                })
+        }
+    })
+}
+
 module.exports = {
     createPlaylist,
     getPlaylists,
@@ -272,5 +298,6 @@ module.exports = {
     addNewSong,
     deleteLastSong,
     editSongContent,
-    deleteSong
+    deleteSong,
+    moveSongs
 }
