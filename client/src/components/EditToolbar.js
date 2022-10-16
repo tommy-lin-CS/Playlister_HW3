@@ -27,10 +27,35 @@ function EditToolbar() {
         store.addNewSongTransaction();
     }
     
-    let editStatus = false;
-    if (store.isListNameEditActive) {
+
+    // FOOLPROOF
+    store.hasUndo();
+    store.hasRedo();
+    let undoStatus = false; // UNDO BUTTON
+    let redoStatus = false; // REDO BUTTON
+    let editStatus = false; // ADD AND DELETE BUTTON
+    
+    // CHECKS IF THERE IS A CURRENT LIST OPENED
+    if(store.currentList == null) {
+        undoStatus = true;
+        redoStatus = true;
         editStatus = true;
     }
+
+    if(!store.hasUndoTransactions) {
+        undoStatus = true;
+    }
+
+    if(!store.hasRedoTransactions) {
+        redoStatus = true;
+    }
+
+    if(store.modalOpen) {
+        undoStatus = true;
+        redoStatus = true;
+        editStatus = true;
+    }
+
     return (
         <span id="edit-toolbar">
             <input
@@ -44,7 +69,7 @@ function EditToolbar() {
             <input
                 type="button"
                 id='undo-button'
-                disabled={editStatus}
+                disabled={undoStatus}
                 value="⟲"
                 className={enabledButtonClass}
                 onClick={handleUndo}
@@ -52,7 +77,7 @@ function EditToolbar() {
             <input
                 type="button"
                 id='redo-button'
-                disabled={editStatus}
+                disabled={redoStatus}
                 value="⟳"
                 className={enabledButtonClass}
                 onClick={handleRedo}

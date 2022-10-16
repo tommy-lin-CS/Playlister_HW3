@@ -1,10 +1,9 @@
-import React, { useContext, useState } from 'react'
+import React, { useContext } from 'react'
 import { GlobalStoreContext } from '../store'
 
 function SongCard(props) {
     const { store } = useContext(GlobalStoreContext);
     const { song, index } = props;
-    // const [draggedTo] = useState(0);
 
     let cardClass = "list-card unselected-list-card";
 
@@ -13,15 +12,12 @@ function SongCard(props) {
     }
     const handleDragOver = (event) => {
         event.preventDefault();
-        // draggedTo(true);
     }
     const handleDragEnter = (event) => {
         event.preventDefault();
-        // draggedTo(true);
     }
     const handleDragLeave = (event) => {
         event.preventDefault();
-        // draggedTo(false);
     }
     const handleDrop = (event) => {
         event.preventDefault();
@@ -29,9 +25,6 @@ function SongCard(props) {
         let targetId = target.split('-')[1];
         if (targetId !== "") {
             let sourceId = event.dataTransfer.getData("song");
-            // isDragging(false);
-            // draggedTo(false);
-
             // ASK THE MODEL TO MOVE THE DATA
             store.moveSongTransaction(sourceId, targetId);
         }

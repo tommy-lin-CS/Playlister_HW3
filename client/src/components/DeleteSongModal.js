@@ -14,11 +14,11 @@ export default function DeleteSongModal () {
     }
     function deleteSong(event) {
         store.deleteSongTransaction();
-        document.getElementById("delete-song-modal").classList.remove("is-visible");
+        store.hideDeleteSongModal();
     }
 
     function cancelButton(event) {
-        document.getElementById("delete-song-modal").classList.remove("is-visible");
+        store.hideDeleteSongModal();
     }
     
     return (

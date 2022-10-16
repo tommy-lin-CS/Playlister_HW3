@@ -25,7 +25,8 @@ export const GlobalStoreActionType = {
     SET_LIST_NAME_EDIT_ACTIVE: "SET_LIST_NAME_EDIT_ACTIVE",
     DELETE_SELECTED_LIST: "DELETE_SELECTED_LIST",
     EDIT_SONG_CONTENT: "EDIT_SONG_CONTENT",
-    DELETE_SELECTED_SONG: "DELETE_SELECTED_SONG"
+    DELETE_SELECTED_SONG: "DELETE_SELECTED_SONG",
+    MODAL_CLOSE: "MODAL_CLOSE"
 }
 
 // WE'LL NEED THIS TO PROCESS TRANSACTIONS
@@ -44,6 +45,9 @@ export const useGlobalStore = () => {
         deleteListName: null,
         songIndex: null,
         deleteSongIndex: null,
+        modalOpen: false,
+        hasUndoTransactions: false,
+        hasRedoTransactions: false
     });
 
     // HERE'S THE DATA STORE'S REDUCER, IT MUST
@@ -122,7 +126,7 @@ export const useGlobalStore = () => {
                 return setStore({
                     idNamePairs: store.idNamePairs,
                     currentList: store.currentList,
-                    newListCounter: store.newListCounter-1,
+                    newListCounter: store.newListCounter - 1,
                     listNameActive: store.listNameActive,
                     deleteListId: payload._id,
                     deleteListName: payload.name
@@ -135,7 +139,8 @@ export const useGlobalStore = () => {
                     currentList: store.currentList,
                     newListCounter: store.newListCounter,
                     listNameActive: store.listNameActive,
-                    songIndex: payload
+                    songIndex: payload,
+                    modalOpen: true
                 });
             }
             // DELETE SONG
@@ -145,7 +150,19 @@ export const useGlobalStore = () => {
                     currentList: store.currentList,
                     newListCounter: store.newListCounter,
                     listNameActive: store.listNameActive,
-                    deleteSongIndex: payload
+                    deleteSongIndex: payload,
+                    modalOpen: true
+                });
+            }
+            // USED IN CASES WHERE MODAL GETS CLOSED
+            case GlobalStoreActionType.MODAL_CLOSE: {
+                return setStore({
+                    idNamePairs: store.idNamePairs,
+                    currentList: store.currentList,
+                    newListCounter: store.newListCounter,
+                    listNameActive: store.listNameActive,
+                    songIndex: store.songIndex,
+                    modalOpen: false
                 });
             }
             default:
@@ -164,8 +181,6 @@ export const useGlobalStore = () => {
             if (response.data.success) {
                 let playlist = response.data.playlist;
                 playlist.name = newName;
-                console.log(playlist._id);
-                console.log(playlist);
                 async function updateList(playlist) {
                     response = await api.updatePlaylistById(playlist._id, playlist);
                     if (response.data.success) {
@@ -267,7 +282,6 @@ export const useGlobalStore = () => {
 
             const response = await api.createPlaylist(payload);
             if (response.data.success) {
-                console.log(response);
                 let playlist = response.data.playlist;
                 storeReducer({
                     type: GlobalStoreActionType.CREATE_NEW_LIST,
@@ -277,7 +291,6 @@ export const useGlobalStore = () => {
                 // Get playlist pair response from APIBKEND
                 const playlistPairResponse = await api.getPlaylistPairs();
                 if(playlistPairResponse.data.success) {
-                    console.log(playlistPairResponse);
                     const index = playlistPairResponse.data.idNamePairs.length - 1;
                     const newPlaylist = playlistPairResponse.data.idNamePairs[index];
                     store.setCurrentList(newPlaylist._id);
@@ -370,7 +383,15 @@ export const useGlobalStore = () => {
         })
         document.getElementById("edit-song-modal").classList.add("is-visible");
     }
-
+    
+    // HIDES MODAL
+    store.hideEditSongModal = function () {
+        document.getElementById("edit-song-modal").classList.remove("is-visible");
+        storeReducer({
+            type: GlobalStoreActionType.MODAL_CLOSE,
+        })
+    }
+    
     store.editSongTransaction = function(newTitle, newArtist, newYtid) {
         let oldSong = store.currentList.songs[store.songIndex];
         let oldTitle = oldSong.title;
@@ -391,7 +412,6 @@ export const useGlobalStore = () => {
                 artist,
                 youTubeId
             }
-            console.log(song.ytid);
             const response = await api.addNewSong(song);
             if (response.data.success) {
                 store.setCurrentList(store.currentList._id);
@@ -401,7 +421,7 @@ export const useGlobalStore = () => {
                 });
             }
             else {
-                console.log("Cannot Edit Song Content!");
+                console.log("Cannot Add Song Content!");
             }
         }
         asyncAddSongGivenAllComponentsOnIndex();
@@ -436,11 +456,20 @@ export const useGlobalStore = () => {
 
     // SHOWS DELETE SONG MODAL
     store.showDeleteSongModal = function(id) {
+        
         storeReducer({
             type: GlobalStoreActionType.DELETE_SELECTED_SONG,
             payload: id
         })
         document.getElementById("delete-song-modal").classList.add("is-visible");
+    }
+
+    // HIDES MODAL
+    store.hideDeleteSongModal = function () {
+        document.getElementById("delete-song-modal").classList.remove("is-visible");
+        storeReducer({
+            type: GlobalStoreActionType.MODAL_CLOSE,
+        })
     }
 
     // TPS
@@ -459,7 +488,6 @@ export const useGlobalStore = () => {
                 id: store.currentList._id, 
                 index: songIndex};
             let response = await api.deleteSong(song);
-            console.log(response);
             if (response.data.success) {
                 store.setCurrentList(store.currentList._id);
                 storeReducer({
@@ -525,6 +553,7 @@ export const useGlobalStore = () => {
         }
         asyncSetCurrentList(id);
     }
+
     store.getPlaylistSize = function() {
         return store.currentList.songs.length;
     }
@@ -534,6 +563,27 @@ export const useGlobalStore = () => {
     store.redo = function () {
         tps.doTransaction();
     }
+
+    // FOOLPROOF CHECKS TO SEE IF TPS HAS UNDO TRANSACTIONS
+    store.hasUndo = function() {
+        if(tps.hasTransactionToUndo()) {
+            this.hasUndoTransactions = true;
+        }
+        else {
+            this.hasUndoTransactions = false;
+        }
+    }
+
+    // FOOLPROOF CHECKS TO SEE IF TPS HAS REDO TRANSACTIONS
+    store.hasRedo = function() {
+        if(tps.hasTransactionToRedo()) {
+            this.hasRedoTransactions = true;
+        }
+        else {
+            this.hasRedoTransactions = false;
+        }
+    }
+
 
     // THIS FUNCTION ENABLES THE PROCESS OF EDITING A LIST NAME
     store.setListNameEditActive = function () {

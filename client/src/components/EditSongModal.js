@@ -15,11 +15,11 @@ export default function EditSongModal () {
         let artist = document.getElementById("form-song-artist").value;
         let ytid = document.getElementById("form-song-ytid").value;
         store.editSongTransaction(title, artist, ytid);
-        document.getElementById("edit-song-modal").classList.remove("is-visible");
+        store.hideEditSongModal();
     }
 
     function cancelButton(event) {
-        document.getElementById("edit-song-modal").classList.remove("is-visible");
+        store.hideEditSongModal();
     }
     
     return (
