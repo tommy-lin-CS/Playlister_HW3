@@ -45,7 +45,6 @@ getPlaylistById = async (req, res) => {
         if (err) {
             return res.status(400).json({ success: false, error: err })
         }
-
         return res.status(200).json({ success: true, playlist: list })
     }).catch(err => console.log(err))
 }
@@ -117,8 +116,6 @@ updatePlaylistById = async (req, res) => {
                     }) 
                 })
         }
-
-        // return res.status(200).json({ success: true, playlist: list })
     }).catch(err => console.log(err))
 }
 
@@ -126,12 +123,12 @@ deletePlaylist = async (req, res) => {
     await Playlist.findByIdAndRemove({ _id: req.params.id },(error, list) => {
         if (error) {
             return res.status(500).json({
-                success:false, 
+                success: false, 
                 error: error
             })
         }
         return res.status(200).json({
-            success:true, 
+            success: true, 
             playlist: list
         })
     }).catch(error => console.log(error))

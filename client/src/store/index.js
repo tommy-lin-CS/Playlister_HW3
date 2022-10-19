@@ -1,4 +1,4 @@
-import { createContext, useState } from 'react'
+import { createContext, useState, useEffect } from 'react'
 import jsTPS from '../common/jsTPS'
 import api from '../api'
 import AddSong_Transaction from '../transactions/AddSong_Transaction';
@@ -172,7 +172,7 @@ export const useGlobalStore = () => {
     // THESE ARE THE FUNCTIONS THAT WILL UPDATE OUR STORE AND
     // DRIVE THE STATE OF THE APPLICATION. WE'LL CALL THESE IN 
     // RESPONSE TO EVENTS INSIDE OUR COMPONENTS.
-
+    
     // THIS FUNCTION PROCESSES CHANGING A LIST NAME
     store.changeListName = function (id, newName) {
         // GET THE LIST
@@ -309,8 +309,6 @@ export const useGlobalStore = () => {
             }
         }
         asynCreateNewList();
-        // const id = store.idNamePairs[store.idNamePairs.length - 1]._id
-        // store.setCurrentList(id);
     }
 /* <---------------------------------------------------------------------------> */
     // THESE FUNCTIONS ADD A NEW SONG TO THE PLAYLIST WITH TPS
@@ -374,8 +372,8 @@ export const useGlobalStore = () => {
     // SHOWS THE EDIT MODAL
     store.showEditSongModal = function(id) {
         document.getElementById("form-song-title").value = store.currentList.songs[id].title;
-        document.getElementById("form-song-artist").value=store.currentList.songs[id].artist;
-        document.getElementById("form-song-ytid").value=store.currentList.songs[id].youTubeId;
+        document.getElementById("form-song-artist").value = store.currentList.songs[id].artist;
+        document.getElementById("form-song-ytid").value = store.currentList.songs[id].youTubeId;
 
         storeReducer({
             type: GlobalStoreActionType.EDIT_SONG_CONTENT,
@@ -594,6 +592,21 @@ export const useGlobalStore = () => {
         });
     }
 
+    // HANDLES CTRL Z AND CTRL Y
+    useEffect(() => {
+        document.addEventListener('keydown', detectKeyDown, true)
+    }, [])
+    const detectKeyDown = (e) => {
+        if(e.ctrlKey) {
+            if(e.keyCode === 90) {
+                store.undo();
+            }
+            else if(e.keyCode === 89) {
+                store.redo();
+            }
+        }
+        console.log("Clicked key: ", e.key)
+    }
     // THIS GIVES OUR STORE AND ITS REDUCER TO ANY COMPONENT THAT NEEDS IT
     return { store, storeReducer };
 }
